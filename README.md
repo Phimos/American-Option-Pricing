@@ -1,4 +1,4 @@
-# Python Implementation of LSMC and Binomial method for american option pricing
+# Python Implementation of LSMC and Binomial-Tree method for American Option Pricing
 
 Online Option Price Calculator:
 
