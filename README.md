@@ -1,6 +1,6 @@
 # Python Implementation of LSMC and Binomial-Tree method for American Option Pricing
 
-*Code part of term project in PKU-Random-Process-2021-Fall*
+*Code part of the team project in PKU-Random-Process-2021-Fall*
 
 Online Option Price Calculator:
 
