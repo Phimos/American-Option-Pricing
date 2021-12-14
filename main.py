@@ -244,4 +244,4 @@ if __name__ == '__main__':
                for _ in range(20)]
         result.loc[i, 'Simulated'] = np.mean(out)
         result.loc[i, 's.e.'] = np.std(out)
-    result.to_csv('result.csv')
+    result.to_csv('result.csv', index=False)
