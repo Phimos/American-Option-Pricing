@@ -1,6 +1,9 @@
+import itertools
+import math
 from typing import Callable
 
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 
@@ -168,7 +171,8 @@ def LeastSquaresMonteCarlo(S0: float, K: float, T: float, r: float,
 
 
 def CoxRossRubinstein(S0: float, K: float, T: float, r: float, sigma: float,
-                      payoff: str, n_step: int = 10000) -> float:
+                      payoff: str, n_step: int = 10000,
+                      n_exercise: int = 50) -> float:
     """Cox-Ross-Rubinstein method for American option pricing
 
     Args:
@@ -208,19 +212,34 @@ def CoxRossRubinstein(S0: float, K: float, T: float, r: float, sigma: float,
     V = np.zeros((n_step+1, n_step+1))
     V[:, -1] = payoff(S[:, -1])
 
+    n_exercise = math.ceil(n_step / n_exercise)
+
     for t in range(n_step, 0, -1):
-        V[:t, t-1] = np.maximum((p * V[:t, t] + q *
-                                 V[1: t+1, t]) * df, payoff(S[:t, t-1]))
+        if (t - 1) % n_exercise == 0:
+            V[:t, t-1] = np.maximum((p * V[:t, t] + q *
+                                     V[1: t+1, t]) * df, payoff(S[:t, t-1]))
+        else:
+            V[:t, t-1] = (p * V[:t, t] + q * V[1: t+1, t]) * df
     return V[0, 0]
 
 
 if __name__ == '__main__':
-    print(CoxRossRubinstein(100, 100, 1, 0.1, 0.2, 'call'))
-    print(LeastSquaresMonteCarlo(100, 100, 1,
-                                 0.1, 0.2, 'call', basis=power_polynomial))
-    print(LeastSquaresMonteCarlo(100, 100, 1,
-                                 0.1, 0.2, 'call', basis=laguerre_polynomial))
-    print(LeastSquaresMonteCarlo(100, 100, 1,
-                                 0.1, 0.2, 'call', basis=legendre_polynomial))
-    print(LeastSquaresMonteCarlo(100, 100, 1,
-                                 0.1, 0.2, 'call', basis=hermite_polynomial))
+    # Reproduce the results in table 1
+    data = list(itertools.product([36, 38, 40, 42, 44], [0.2, 0.4], [1, 2]))
+    result = pd.DataFrame(data, columns=['S0', 'sigma', 'T'])
+    result['Simulated'] = 0
+    result['s.e.'] = 0
+
+    K = 40
+    r = 0.06
+    n_path = 100000
+
+    for i, item in result.iterrows():
+        out = [LeastSquaresMonteCarlo(item['S0'], K, item['T'], 0.06,
+                                      item['sigma'], 'put', int(
+                                          item['T']) * 50,
+                                      n_path, basis=laguerre_polynomial)
+               for _ in range(20)]
+        result.loc[i, 'Simulated'] = np.mean(out)
+        result.loc[i, 's.e.'] = np.std(out)
+    result.to_csv('result.csv')
