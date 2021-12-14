@@ -106,7 +106,7 @@ def hermite_polynomial(order: int = 2) -> Callable:
 
 
 def LeastSquaresMonteCarlo(S0: float, K: float, T: float, r: float,
-                           sigma: float, payoff: str, n_step=10000,
+                           sigma: float, payoff: str, n_step=50,
                            n_path=10000, basis=power_polynomial, order=8) -> float:
     """Least squares Monte Carlo method for American option pricing
 
@@ -117,7 +117,7 @@ def LeastSquaresMonteCarlo(S0: float, K: float, T: float, r: float,
         r (float): risk-free rate
         sigma (float): volatility
         payoff (str): payoff function, either 'call' or 'put'
-        n_step (int, optional): num of simulation steps. Defaults to 10000.
+        n_step (int, optional): num of simulation steps. Defaults to 50.
         n_path (int, optional): num of simulation paths. Defaults to 10000.
         basis ([type], optional): basis function. Defaults to power_polynomial.
         order (int, optional): parameter of basis function. Defaults to 8.
@@ -183,6 +183,8 @@ def CoxRossRubinstein(S0: float, K: float, T: float, r: float, sigma: float,
         sigma (float): volatility
         payoff (str): payoff function, either 'call' or 'put'
         n_step (int, optional): num of steps. Defaults to 10000.
+        n_exercise (int, optional): num of timestamps able to exercise.
+            Defaults to 50.
 
     Raises:
         ValueError: if payoff is not 'call' or 'put'
